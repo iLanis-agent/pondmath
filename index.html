@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PondMath - Backyard Pond Math That Holds Up</title>
+<meta name="description" content="Honest pond volume from average depth, liner sizing with real overlap, pump flow after head loss, fish stocking without the inch-per-gallon myth, and winter depth verdicts.">
+<link rel="canonical" href="https://ilanis-agent.github.io/pondmath/">
+<meta property="og:title" content="PondMath - Backyard Pond Math That Holds Up">
+<meta property="og:description" content="Honest pond volume from average depth, liner sizing with real overlap, pump flow after head loss, fish stocking without the inch-per-gallon myth, and winter depth verdicts.">
+<meta property="og:url" content="https://ilanis-agent.github.io/pondmath/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0d2a33">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%90%9F%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0b1d24; --card:#122a33; --ink:#e4f2f5; --muted:#8fb8c2;
+  --accent:#3aa8c4; --accent2:#8fe0d4; --line:#21444f; --good:#8fd18a; --warn:#f2c14e; --bad:#e86a5a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:1rem}
+.wrap{max-width:760px;margin:0 auto}
+header{text-align:center;padding:1.6rem 0 1.2rem}
+h1{font-size:2.1rem;color:var(--accent2);letter-spacing:.5px}
+.tag{color:var(--muted);margin-top:.3rem;font-size:.98rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.2rem;margin:1rem 0}
+.card h2{font-size:1.05rem;color:var(--accent);margin-bottom:.7rem}
+.row{display:flex;flex-wrap:wrap;gap:.9rem;align-items:flex-end;margin:.5rem 0}
+.field{display:flex;flex-direction:column;gap:.25rem}
+label{font-size:.8rem;color:var(--muted)}
+input,select{background:#081519;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:.45rem .6rem;font-size:1rem;width:8.5rem}
+input:focus,select:focus{outline:2px solid var(--accent)}
+button{background:var(--accent);color:#0b1d24;border:0;border-radius:8px;padding:.5rem 1.1rem;font-size:.95rem;font-weight:700;cursor:pointer}
+button:hover{background:#5cc0da}
+.presets{display:flex;flex-wrap:wrap;gap:.5rem;margin:.6rem 0 .2rem}
+.presets button{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:400;padding:.35rem .8rem;font-size:.85rem}
+.presets button:hover{border-color:var(--accent);color:var(--ink)}
+.big{font-size:1.3rem;font-weight:700;color:var(--accent2)}
+.result{margin-top:.6rem;font-size:1rem;min-height:1.4rem}
+.result small{color:var(--muted);display:block;margin-top:.25rem}
+.verdict-ok{color:var(--good)} .verdict-tight{color:var(--warn)} .verdict-bad{color:var(--bad)}
+.era{font-size:.85rem;color:var(--muted);margin-bottom:.6rem;font-style:italic}
+footer{margin:2rem 0 1rem;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:1rem}
+footer code{color:var(--accent)}
+details{margin-top:.4rem} summary{cursor:pointer;color:var(--muted);font-size:.85rem}
+table{border-collapse:collapse;margin-top:.5rem;font-size:.9rem}
+td,th{border:1px solid var(--line);padding:.3rem .6rem;text-align:left}
+th{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>&#128031; PondMath</h1>
+<p class="tag">Backyard pond math that holds up. Volume, liner, pump, fish, winter - sized for the pond you actually dug.</p>
+</header>
+
+<section class="card" id="c-pond">
+<h2>Volume &amp; liner</h2>
+<p class="era">Nobody digs a box. Average depth - shelves included - sets the real gallons, and the liner wants depth twice plus overlap on every side.</p>
+<div class="presets" id="presets-pond"></div>
+<div class="row">
+  <div class="field"><label for="in-l">length (ft)</label><input id="in-l" type="number" min="2" max="60" step="1" value="10"></div>
+  <div class="field"><label for="in-w">width (ft)</label><input id="in-w" type="number" min="2" max="60" step="1" value="8"></div>
+  <div class="field"><label for="in-avg">avg depth (ft)</label><input id="in-avg" type="number" min="0.5" max="8" step="0.25" value="1.5"></div>
+  <div class="field"><label for="in-max">max depth (ft)</label><input id="in-max" type="number" min="0.5" max="8" step="0.25" value="2"></div>
+  <div class="field"><label for="in-over">overlap (ft)</label><input id="in-over" type="number" min="0.5" max="4" step="0.5" value="2"></div>
+</div>
+<button id="btn-pond">Pond math</button>
+<div class="result" id="out-pond"></div>
+</section>
+
+<section class="card" id="c-pump">
+<h2>Pump &amp; waterfall</h2>
+<p class="era">A pump's box rate is at zero lift. Every foot of head and every inch of waterfall spillway takes its share first.</p>
+<div class="row">
+  <div class="field"><label for="in-vol">pond (gal)</label><input id="in-vol" type="number" min="50" step="50" value="900"></div>
+  <div class="field"><label for="in-turn">turnover (hrs)</label>
+    <select id="in-turn">
+      <option value="1">1 hr - koi / heavy stock</option>
+      <option value="1.5" selected>1.5 hr - planted pond</option>
+      <option value="2">2 hr - lightly stocked</option>
+    </select>
+  </div>
+  <div class="field"><label for="in-rated">pump rated (GPH)</label><input id="in-rated" type="number" min="100" step="100" value="1200"></div>
+  <div class="field"><label for="in-head">lift (ft)</label><input id="in-head" type="number" min="0" max="30" step="1" value="6"></div>
+  <div class="field"><label for="in-maxhead">pump max head (ft)</label><input id="in-maxhead" type="number" min="1" max="50" step="1" value="18"></div>
+  <div class="field"><label for="in-spill">spillway (in)</label><input id="in-spill" type="number" min="0" max="48" step="1" value="0"></div>
+</div>
+<button id="btn-pump">Pump math</button>
+<div class="result" id="out-pump"></div>
+</section>
+
+<section class="card" id="c-fish">
+<h2>Fish stocking honesty</h2>
+<p class="era">"One inch of fish per gallon" is the myth that fills ponds with dying koi. Koi want 250 gallons each; goldfish 20.</p>
+<div class="row">
+  <div class="field"><label for="in-fvol">pond (gal)</label><input id="in-fvol" type="number" min="50" step="50" value="900"></div>
+  <div class="field"><label for="in-ftype">fish</label>
+    <select id="in-ftype"><option value="goldfish" selected>Goldfish</option><option value="koi">Koi</option></select>
+  </div>
+  <div class="field"><label for="in-fcount">how many</label><input id="in-fcount" type="number" min="1" step="1" value="10"></div>
+</div>
+<button id="btn-fish">Fish math</button>
+<div class="result" id="out-fish"></div>
+</section>
+
+<section class="card" id="c-winter">
+<h2>Winter depth</h2>
+<p class="era">Fish winter under ice if the deep end stays liquid. The bar moves with your climate.</p>
+<div class="row">
+  <div class="field"><label for="in-wdepth">max depth (in)</label><input id="in-wdepth" type="number" min="6" max="60" step="1" value="24"></div>
+  <div class="field"><label for="in-climate">climate</label>
+    <select id="in-climate">
+      <option value="mild">mild - rare light freezes</option>
+      <option value="cold" selected>cold - regular hard freezes</option>
+      <option value="severe">severe - months of ice</option>
+    </select>
+  </div>
+</div>
+<button id="btn-winter">Winter math</button>
+<div class="result" id="out-winter"></div>
+</section>
+
+<section class="card" id="c-why">
+<h2>Why these numbers</h2>
+<details><summary>The assumptions, stated honestly</summary>
+<table>
+<tr><th>Constant</th><th>Value</th><th>Why</th></tr>
+<tr><td>Gallons per cu ft</td><td>7.48</td><td>Exact conversion; average depth matters because nobody digs a box</td></tr>
+<tr><td>Liner formula</td><td>footprint + 2 x depth + 2 x overlap</td><td>Depth goes down and back up on every axis; overlap anchors the edge</td></tr>
+<tr><td>Turnover</td><td>1-2 hours</td><td>The pond's volume through the filter every hour or two, by stocking level</td></tr>
+<tr><td>Waterfall flow</td><td>150 GPH per inch of spillway</td><td>The standard for a decent sheet of water; double it for a roar</td></tr>
+<tr><td>Head loss</td><td>linear to max head</td><td>A pump reaches zero flow at its max-head rating; between, flow falls roughly linearly</td></tr>
+<tr><td>Fish capacity</td><td>250 gal per koi, 20 per goldfish</td><td>Adult size and oxygen demand, not the inch-per-gallon myth</td></tr>
+<tr><td>Winter depth</td><td>18 / 24 / 36 in by climate</td><td>Below the ice line, water holds 39 F; depth is what keeps a liquid refuge</td></tr>
+</table>
+<p style="margin-top:.5rem;color:var(--muted);font-size:.85rem">Shape, shade and climate move these numbers. The first winter grades the digging.</p>
+</details>
+</section>
+
+<footer>
+<p><strong>PondMath</strong> - part of the App Factory collection. Honest small tools, one good idea at a time.</p>
+<p>Source: <code>engine.js</code> (pure functions, tested) &middot; <code>app.html</code> (this UI) &middot; <code>README.md</code></p>
+</footer>
+</div>
+</body>
+</html>
